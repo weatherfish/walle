@@ -22,7 +22,7 @@ Walle（瓦力）：Android Signature V2 Scheme签名下的新一代渠道包打
 ```groovy
 buildscript {
     dependencies {
-        classpath 'com.meituan.android.walle:plugin:1.0.3'
+        classpath 'com.meituan.android.walle:plugin:1.0.5'
     }
 }
 ```
@@ -33,9 +33,47 @@ buildscript {
 apply plugin: 'walle'
 
 dependencies {
-    compile 'com.meituan.android.walle:library:1.0.3'
+    compile 'com.meituan.android.walle:library:1.0.5'
 }
 ```
+
+#### 配置插件
+
+```groovy
+walle {
+    // 指定渠道包的输出路径
+    apkOutputFolder = new File("${project.buildDir}/outputs/channels");
+    // 定制渠道包的APK的文件名称
+    apkFileNameFormat = '${appName}-${packageName}-${channel}-${buildType}-v${versionName}-${versionCode}-${buildTime}.apk';
+    // 配置渠道文件列表，也可以通过channelList来配置
+    channelFile = "./channel";
+}
+```
+
+目前插件支持下面几个配置项：
+
+* apkOutputFolder：指定渠道包的输出路径， 默认值为`new File("${project.buildDir}/outputs/apk")`
+* apkFileNameFormat：定制渠道包的APK的文件名称, 默认值为`'${appName}-${buildType}-${channel}.apk'`
+* channelList：渠道信息列表
+* channelFile：包含渠道配置信息的文件路径
+* extraInfo：以`key:value`形式提供，多个以`,`分隔
+
+可以通过`apkFileNameFormat`来指定渠道打包输出的APK文件名格式，默认文件名格式是： `${appName}-${buildType}-${channel}.apk`
+
+可使用以下变量:
+                     
+```
+    projectName - 项目名字
+    appName - App模块名字
+    packageName - applicationId (App包名packageName)
+    buildType - buildType (release/debug等)
+    channel - channel名称 (对应渠道打包中的渠道名字)
+    versionName - versionName (显示用的版本号)
+    versionCode - versionCode (内部版本号)
+    buildTime - buildTime (编译构建日期时间)
+    fileSHA1 - fileSHA1 (最终APK文件的SHA1哈希值)
+```                     
+                     
 
 #### 如何获取渠道信息
 
@@ -47,14 +85,14 @@ String channel = WalleChannelReader.getChannel(this.getApplicationContext());
 
 #### 如何生成渠道包
 
-生成渠道包的方式是和assemble指令结合，可以通过传入参数决定是否生成渠道包，渠道包的生成目录存放在 `build/outputs/apk/`
+生成渠道包的方式是和`assemble${variantName}Channels`指令结合，可以通过传入参数决定是否生成渠道包，也可以通过在`build.gradle`中的walle闭包中配置相应的参数，渠道包的生成目录默认存放在 `build/outputs/apk/`，也可以通过`walle`闭包中的`apkOutputFolder`参数来指定输出目录
 
 下面是各类用法示例：
 
-* 生成单个渠道包 `./gradlew clean assembleRelease -PchannelList=meituan`
-* 支持 productFlavors `./gradlew clean assembleMeituanRelease -PchannelList=meituan`
-* 生成多个渠道包 `./gradlew clean assembleRelease -PchannelList=meituan,dianping`
-* 通过渠道配置文件来生成渠道包 `./gradlew clean assembleRelease -PchannelFile=channel`
+* 生成单个渠道包 `./gradlew clean assembleReleaseChannels -PchannelList=meituan`
+* 支持 productFlavors `./gradlew clean assembleMeituanReleaseChannels -PchannelList=meituan`
+* 生成多个渠道包 `./gradlew clean assembleReleaseChannels -PchannelList=meituan,dianping`
+* 通过渠道配置文件来生成渠道包 `./gradlew clean assembleReleaseChannels -PchannelFile=channel`
 
 渠道信息的配置文件支持配置相对路径，详见：[配置文件示例](app/channel)，同时配置文件支持使用#号添加注释。
 
@@ -65,7 +103,7 @@ String channel = WalleChannelReader.getChannel(this.getApplicationContext());
 如果想插入除渠道以外的其他信息，请在生成渠道包时使用
 
 ```
-./gradlew clean assembleRelease -PchannelList=meituan -PextraInfo=buildtime:20161212,hash:xxxxxxx
+./gradlew clean assembleReleaseChannels -PchannelList=meituan -PextraInfo=buildtime:20161212,hash:xxxxxxx
 ```
 
 extraInfo以`key:value`形式提供，多个以`,`分隔。
