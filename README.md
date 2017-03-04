@@ -72,6 +72,7 @@ walle {
     versionCode - versionCode (内部版本号)
     buildTime - buildTime (编译构建日期时间)
     fileSHA1 - fileSHA1 (最终APK文件的SHA1哈希值)
+    flavorName - 编译构建 productFlavors 名
 ```                     
                      
 
@@ -137,6 +138,9 @@ String value = WalleChannelReader.get(context, "buildtime");
 
 * [APK Signing Block读取模块: payload_reader](payload_reader/README.md)
 * [APK Signing Block写入模块: payload_writer](payload_writer/README.md)
+
+## Q&A
+- [360加固失效](https://github.com/Meituan-Dianping/walle/wiki/360%E5%8A%A0%E5%9B%BA%E5%A4%B1%E6%95%88%EF%BC%9F)？
 
 ## 原理介绍
 

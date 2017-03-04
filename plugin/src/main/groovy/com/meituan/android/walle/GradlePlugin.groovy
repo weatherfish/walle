@@ -21,6 +21,10 @@ class GradlePlugin implements org.gradle.api.Plugin<Project> {
             throw new ProjectConfigurationException("Plugin requires the 'com.android.tools.build:gradle' version 2.2.0 or above to be configured.", null);
         }
 
+        project.dependencies {
+            compile 'com.meituan.android.walle:library:latest.integration'
+        }
+
         applyExtension(project);
 
         applyTask(project);
@@ -41,10 +45,8 @@ class GradlePlugin implements org.gradle.api.Plugin<Project> {
                 }
 
                 ChannelMaker channelMaker = project.tasks.create("assemble${variantName}Channels", ChannelMaker);
-                def File apkFile = variant.outputs[0].outputFile
                 channelMaker.targetProject = project;
                 channelMaker.variant = variant;
-                channelMaker.apkFile = apkFile;
                 channelMaker.setup();
 
                 channelMaker.dependsOn variant.assemble;
